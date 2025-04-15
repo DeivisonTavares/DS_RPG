@@ -1,4 +1,4 @@
-// classe Jogador
+// Classe Jogador
 class Jogador {
     String idJogador;
     String nome;
@@ -38,9 +38,6 @@ class Jogador {
 
     public void exibirPersonagens() {
         System.out.println("Personagens de " + nome + ":");
-        for (int i = 0; i < personagens.size; i++) {
-            Entidade p = (Entidade) personagens.get(i);
-            System.out.println("- " + p.nome + " (Nível " + p.nivel + ", Vida " + p.vidaAtual + "/" + p.vidaMaxima + ")");
-        }
+        personagens.display("Personagens");
     }
 }

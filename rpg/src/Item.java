@@ -5,21 +5,23 @@ class Item {
     int custoMana;
     int efeito;
     int preco;
+    String tipoEfeito;
 
-    public Item(String id, String nome, int custoMana, int efeito, int preco) {
+    public Item(String id, String nome, int custoMana, int efeito, int preco, String tipoEfeito) {
         this.id = id;
         this.nome = nome;
         this.custoMana = custoMana;
         this.efeito = efeito;
         this.preco = preco;
-    }
-
-    public Item(String id, String nome, int custoMana, int efeito) {
-        this(id, nome, custoMana, efeito, 0);
+        this.tipoEfeito = tipoEfeito;
     }
 
     public void usar(Entidade usuario) {
-        usuario.curar(efeito);
+        if (tipoEfeito.equals("vida")) {
+            usuario.curar(efeito);
+        } else if (tipoEfeito.equals("mana")) {
+            usuario.restaurarMana(efeito);
+        }
         System.out.println(usuario.nome + " usou " + nome);
     }
 }

@@ -1,5 +1,5 @@
-// Classe Arena
 import java.util.Scanner;
+// Classe Arena
 class Arena {
     String idBatalha;
     Queue turnos;
@@ -163,7 +163,6 @@ class Arena {
             System.out.println(pos + "º: " + p.nome + " (Vivo: " + p.estaVivo() + ")");
             pos++;
         }
-        // Restaurar vida de todos os participantes
         for (Entidade p : participantes) {
             p.restaurarVida();
         }

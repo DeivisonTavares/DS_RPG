@@ -2,7 +2,7 @@
 class Monstro extends Entidade {
     public Monstro(String id, String nome, int vidaMax, int manaMax) {
         super(id, nome, vidaMax, manaMax);
-        habilidades.add(new Habilidade("1", "Mordida", 0, 8));
+        habilidades.add(new Habilidade("1", "Mordida", 0, 8, 0));
     }
 
     @Override

@@ -13,8 +13,4 @@ class Habilidade {
         this.dano = dano;
         this.preco = preco;
     }
-
-    public Habilidade(String id, String nome, int custoMana, int dano) {
-        this(id, nome, custoMana, dano, 0);
-    }
 }

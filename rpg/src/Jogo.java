@@ -1,6 +1,5 @@
-// Classe principal do jogo
 import java.util.Scanner;
-
+// Classe principal do jogo
 class Jogo {
     LinkedList jogadores;
     Arena arenaAtual;

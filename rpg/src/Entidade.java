@@ -1,5 +1,5 @@
-// Classe abstrata Entidade
 import java.util.Random;
+// Classe abstrata Entidade
 abstract class Entidade {
     String id;
     String nome;
@@ -47,6 +47,12 @@ abstract class Entidade {
         vidaAtual += valor;
         if (vidaAtual > vidaMaxima) vidaAtual = vidaMaxima;
         System.out.println(nome + " curou " + valor + ". Vida: " + vidaAtual);
+    }
+
+    public void restaurarMana(int valor) {
+        manaAtual += valor;
+        if (manaAtual > manaMaxima) manaAtual = manaMaxima;
+        System.out.println(nome + " restaurou " + valor + " de mana. Mana: " + manaAtual);
     }
 
     public boolean estaVivo() {
