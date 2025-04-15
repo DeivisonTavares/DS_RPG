@@ -1,5 +1,4 @@
 import java.util.Scanner;
-// Classe Arena
 class Arena {
     String idBatalha;
     Queue turnos;
@@ -29,8 +28,8 @@ class Arena {
         turnos.display();
     }
 
-    public void executarTurno(Scanner scanner) {
-        if (turnos.isEmpty()) {
+    public void executarTurno(Scanner scanner, Jogador jogadorAtual, Jogador adversario) {
+        if (turnos.isEmpty() || estadoBatalha.equals("Finalizada")) {
             estadoBatalha = "Finalizada";
             return;
         }
@@ -38,72 +37,87 @@ class Arena {
         System.out.println("\nTurno " + turnoAtual + ":");
         turnos.display();
         Entidade atual = (Entidade) turnos.dequeue();
-        if (atual.estaVivo()) {
-            if (atual instanceof PersonagemJogador) {
-                System.out.println(atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")");
-                atual.habilidades.display("Habilidades");
-                atual.inventario.display("Itens");
-                System.out.println("Escolha uma ação:");
-                System.out.println("1. Atacar");
-                System.out.println("2. Usar Habilidade");
-                System.out.println("3. Usar Item");
-                System.out.println("4. Defender");
-                System.out.println("5. Fugir");
-                System.out.print("Opção: ");
-                int acao = scanner.nextInt();
-                scanner.nextLine();
+        if (atual != null && atual.estaVivo()) {
+            // Determina qual jogador está controlando o personagem atual
+            Jogador controlador = (atual == participantes[0]) ? jogadorAtual : adversario;
+            System.out.println("Turno de " + controlador.nome + " controlando " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")");
+            atual.habilidades.display("Habilidades");
+            atual.inventario.display("Itens");
+            System.out.println("Escolha uma ação:");
+            System.out.println("1. Atacar");
+            System.out.println("2. Usar Habilidade");
+            System.out.println("3. Usar Item");
+            System.out.println("4. Defender");
+            System.out.println("5. Fugir");
+            System.out.print("Opção: ");
+            int acao = scanner.nextInt();
+            scanner.nextLine();
 
-                if (acao == 1) {
-                    escolherAlvo(atual, scanner, 1);
-                } else if (acao == 2) {
-                    System.out.print("ID da Habilidade: ");
-                    int id = scanner.nextInt();
-                    scanner.nextLine();
-                    escolherAlvo(atual, scanner, id);
-                } else if (acao == 3) {
-                    System.out.print("ID do Item: ");
-                    int id = scanner.nextInt();
-                    scanner.nextLine();
-                    ((PersonagemJogador) atual).usarItem(id);
-                } else if (acao == 4) {
-                    atual.defendendo = true;
-                    System.out.println(atual.nome + " está defendendo!");
-                    historicoTurnos.push(atual.nome + " defendeu no turno " + turnoAtual);
-                } else if (acao == 5) {
-                    System.out.println(atual.nome + " fugiu!");
-                    historicoTurnos.push(atual.nome + " fugiu no turno " + turnoAtual);
-                    return;
-                } else {
-                    historicoTurnos.push(atual.nome + " agiu no turno " + turnoAtual);
-                }
+            if (acao == 1) {
+                escolherAlvo(atual, scanner);
+            } else if (acao == 2) {
+                System.out.print("ID da Habilidade: ");
+                int id = scanner.nextInt();
+                scanner.nextLine();
+                escolherAlvo(atual, scanner, id);
+            } else if (acao == 3) {
+                System.out.print("ID do Item: ");
+                int id = scanner.nextInt();
+                scanner.nextLine();
+                ((PersonagemJogador) atual).usarItem(id);
+            } else if (acao == 4) {
+                atual.defendendo = true;
+                System.out.println(atual.nome + " está defendendo!");
+                historicoTurnos.push(atual.nome + " defendeu no turno " + turnoAtual);
+            } else if (acao == 5) {
+                System.out.println(atual.nome + " fugiu!");
+                historicoTurnos.push(atual.nome + " fugiu no turno " + turnoAtual);
+                estadoBatalha = "Finalizada";
+                return;
             } else {
-                for (Entidade p : participantes) {
-                    if (p != atual && p.estaVivo()) {
-                        atual.usarHabilidade(1, p);
-                        historicoTurnos.push(atual.nome + " atacou " + p.nome);
-                        break;
-                    }
-                }
+                historicoTurnos.push(atual.nome + " agiu no turno " + turnoAtual);
             }
             if (atual.estaVivo()) {
                 turnos.enqueue(atual);
             }
         }
         verificarDerrotados();
+        verificarVencedor();
+    }
+
+    private void escolherAlvo(Entidade atual, Scanner scanner) {
+        escolherAlvo(atual, scanner, 1);
     }
 
     private void escolherAlvo(Entidade atual, Scanner scanner, int idHabilidade) {
         System.out.println("Escolha o alvo:");
+        int alvosVivos = 0;
         for (int i = 0; i < participantes.length; i++) {
             if (participantes[i].estaVivo() && participantes[i] != atual) {
-                System.out.println(i + 1 + ". " + participantes[i].nome);
+                System.out.println((alvosVivos + 1) + ". " + participantes[i].nome);
+                alvosVivos++;
             }
         }
+        if (alvosVivos == 0) {
+            System.out.println("Não há alvos vivos!");
+            return;
+        }
         System.out.print("Alvo: ");
-        int alvoIdx = scanner.nextInt() - 1;
+        int escolha = scanner.nextInt() - 1;
         scanner.nextLine();
-        if (alvoIdx >= 0 && alvoIdx < participantes.length && participantes[alvoIdx].estaVivo()) {
-            atual.usarHabilidade(idHabilidade, participantes[alvoIdx]);
+        int indiceAlvo = -1;
+        int contador = 0;
+        for (int i = 0; i < participantes.length; i++) {
+            if (participantes[i].estaVivo() && participantes[i] != atual) {
+                if (contador == escolha) {
+                    indiceAlvo = i;
+                    break;
+                }
+                contador++;
+            }
+        }
+        if (indiceAlvo >= 0 && indiceAlvo < participantes.length && participantes[indiceAlvo].estaVivo()) {
+            atual.usarHabilidade(idHabilidade, participantes[indiceAlvo]);
         } else {
             System.out.println("Alvo inválido!");
         }
@@ -138,13 +152,16 @@ class Arena {
         }
         if (vivos <= 1) {
             estadoBatalha = "Finalizada";
-            if (ultimoVivo != null) {
+            if (vivos == 1 && ultimoVivo != null) {
                 colocacoes.push(ultimoVivo);
                 System.out.println(ultimoVivo.nome + " é o vencedor!");
                 if (ultimoVivo instanceof PersonagemJogador) {
                     ultimoVivo.subirNivel();
                 }
                 return ultimoVivo;
+            } else {
+                System.out.println("Todos os participantes foram derrotados!");
+                return null;
             }
         }
         return null;
@@ -164,7 +181,9 @@ class Arena {
             pos++;
         }
         for (Entidade p : participantes) {
-            p.restaurarVida();
+            if (p != null) {
+                p.restaurarVida();
+            }
         }
     }
 }

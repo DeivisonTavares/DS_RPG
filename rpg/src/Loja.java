@@ -1,4 +1,3 @@
-// Classe Loja
 class Loja {
     LinkedList habilidades;
     LinkedList itens;
