@@ -1,4 +1,3 @@
-// Nó genérico para listas encadeadas
 class Node {
     Object data;
     Node next;

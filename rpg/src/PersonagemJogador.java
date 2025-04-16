@@ -1,4 +1,3 @@
-// Classe PersonagemJogador
 class PersonagemJogador extends Entidade {
     public PersonagemJogador(String id, String nome, int vidaMax, int manaMax) {
         super(id, nome, vidaMax, manaMax);

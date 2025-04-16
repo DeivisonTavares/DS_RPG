@@ -1,4 +1,3 @@
-// Classe Habilidade
 class Habilidade {
     String id;
     String nome;

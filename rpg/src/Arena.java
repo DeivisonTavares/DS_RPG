@@ -1,4 +1,5 @@
 import java.util.Scanner;
+
 class Arena {
     String idBatalha;
     Queue turnos;
@@ -40,7 +41,7 @@ class Arena {
         if (atual != null && atual.estaVivo()) {
             // Determina qual jogador está controlando o personagem atual
             Jogador controlador = (atual == participantes[0]) ? jogadorAtual : adversario;
-            System.out.println("Turno de " + controlador.nome + " controlando " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")");
+            System.out.println("Turno de " + controlador.nome + " controlando " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")\n");
             atual.habilidades.display("Habilidades");
             atual.inventario.display("Itens");
             System.out.println("Escolha uma ação:");
