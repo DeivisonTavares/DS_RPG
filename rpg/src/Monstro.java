@@ -1,4 +1,3 @@
-// Classe Monstro
 class Monstro extends Entidade {
     public Monstro(String id, String nome, int vidaMax, int manaMax) {
         super(id, nome, vidaMax, manaMax);

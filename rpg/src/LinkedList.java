@@ -1,4 +1,4 @@
-// Lista encadeada simples para inventário e personagens
+// Lista para inventário e personagens
 class LinkedList {
     Node head;
     int size;
