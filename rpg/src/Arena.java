@@ -1,5 +1,4 @@
 import java.util.Scanner;
-
 class Arena {
     String idBatalha;
     Queue turnos;
@@ -8,6 +7,7 @@ class Arena {
     Entidade[] participantes;
     int turnoAtual;
     String estadoBatalha;
+    Entidade vencedor;
 
     public Arena(String id, Entidade[] participantes) {
         this.idBatalha = id;
@@ -17,6 +17,7 @@ class Arena {
         this.historicoTurnos = new Stack();
         this.turnoAtual = 0;
         this.estadoBatalha = "EmAndamento";
+        this.vencedor = null;
     }
 
     public void iniciarBatalha() {
@@ -39,44 +40,63 @@ class Arena {
         turnos.display();
         Entidade atual = (Entidade) turnos.dequeue();
         if (atual != null && atual.estaVivo()) {
-            // Determina qual jogador está controlando o personagem atual
-            Jogador controlador = (atual == participantes[0]) ? jogadorAtual : adversario;
-            System.out.println("Turno de " + controlador.nome + " controlando " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")\n");
-            atual.habilidades.display("Habilidades");
-            atual.inventario.display("Itens");
-            System.out.println("Escolha uma ação:");
-            System.out.println("1. Atacar");
-            System.out.println("2. Usar Habilidade");
-            System.out.println("3. Usar Item");
-            System.out.println("4. Defender");
-            System.out.println("5. Fugir");
-            System.out.print("Opção: ");
-            int acao = scanner.nextInt();
-            scanner.nextLine();
-
-            if (acao == 1) {
-                escolherAlvo(atual, scanner);
-            } else if (acao == 2) {
-                System.out.print("ID da Habilidade: ");
-                int id = scanner.nextInt();
-                scanner.nextLine();
-                escolherAlvo(atual, scanner, id);
-            } else if (acao == 3) {
-                System.out.print("ID do Item: ");
-                int id = scanner.nextInt();
-                scanner.nextLine();
-                ((PersonagemJogador) atual).usarItem(id);
-            } else if (acao == 4) {
-                atual.defendendo = true;
-                System.out.println(atual.nome + " está defendendo!");
-                historicoTurnos.push(atual.nome + " defendeu no turno " + turnoAtual);
-            } else if (acao == 5) {
-                System.out.println(atual.nome + " fugiu!");
-                historicoTurnos.push(atual.nome + " fugiu no turno " + turnoAtual);
-                estadoBatalha = "Finalizada";
-                return;
+            if (atual instanceof Monstro) {
+                // Monstros agem automaticamente
+                System.out.println("Turno de " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")");
+                // Escolhe o primeiro alvo vivo (excluindo a si mesmo)
+                Entidade alvo = null;
+                for (Entidade p : participantes) {
+                    if (p != atual && p.estaVivo()) {
+                        alvo = p;
+                        break; // Usa o primeiro alvo vivo encontrado
+                    }
+                }
+                if (alvo != null) {
+                    atual.usarHabilidade(1, alvo);
+                    historicoTurnos.push(atual.nome + " atacou " + alvo.nome + " no turno " + turnoAtual);
+                } else {
+                    System.out.println(atual.nome + " não encontrou alvos vivos!");
+                }
             } else {
-                historicoTurnos.push(atual.nome + " agiu no turno " + turnoAtual);
+                // Personagens de jogadores mostram menu interativo
+                Jogador controlador = (atual == participantes[0]) ? jogadorAtual : adversario;
+                System.out.println("Turno de " + (controlador != null ? controlador.nome : atual.nome) + " controlando " + atual.nome + " (Vida: " + atual.vidaAtual + ", Mana: " + atual.manaAtual + ")");
+                atual.habilidades.display("Habilidades");
+                atual.inventario.display("Itens");
+                System.out.println("Escolha uma ação:");
+                System.out.println("1. Atacar");
+                System.out.println("2. Usar Habilidade");
+                System.out.println("3. Usar Item");
+                System.out.println("4. Defender");
+                System.out.println("5. Fugir");
+                System.out.print("Opção: ");
+                int acao = scanner.nextInt();
+                scanner.nextLine();
+
+                if (acao == 1) {
+                    escolherAlvo(atual, scanner);
+                } else if (acao == 2) {
+                    System.out.print("ID da Habilidade: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    escolherAlvo(atual, scanner, id);
+                } else if (acao == 3) {
+                    System.out.print("ID do Item: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine();
+                    ((PersonagemJogador) atual).usarItem(id);
+                } else if (acao == 4) {
+                    atual.defendendo = true;
+                    System.out.println(atual.nome + " está defendendo!");
+                    historicoTurnos.push(atual.nome + " defendeu no turno " + turnoAtual);
+                } else if (acao == 5) {
+                    System.out.println(atual.nome + " fugiu!");
+                    historicoTurnos.push(atual.nome + " fugiu no turno " + turnoAtual);
+                    estadoBatalha = "Finalizada";
+                    return;
+                } else {
+                    historicoTurnos.push(atual.nome + " agiu no turno " + turnoAtual);
+                }
             }
             if (atual.estaVivo()) {
                 turnos.enqueue(atual);
@@ -154,6 +174,7 @@ class Arena {
         if (vivos <= 1) {
             estadoBatalha = "Finalizada";
             if (vivos == 1 && ultimoVivo != null) {
+                vencedor = ultimoVivo;
                 colocacoes.push(ultimoVivo);
                 System.out.println(ultimoVivo.nome + " é o vencedor!");
                 if (ultimoVivo instanceof PersonagemJogador) {
@@ -161,11 +182,16 @@ class Arena {
                 }
                 return ultimoVivo;
             } else {
+                vencedor = null;
                 System.out.println("Todos os participantes foram derrotados!");
                 return null;
             }
         }
         return null;
+    }
+
+    public Entidade getVencedor() {
+        return vencedor;
     }
 
     public void exibirRankingFinal() {
