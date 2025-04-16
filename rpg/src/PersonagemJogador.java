@@ -1,7 +1,7 @@
 class PersonagemJogador extends Entidade {
     public PersonagemJogador(String id, String nome, int vidaMax, int manaMax) {
         super(id, nome, vidaMax, manaMax);
-        habilidades.add(new Habilidade("1", "Ataque Básico", 0, 100, 0));
+        habilidades.add(new Habilidade("1", "Ataque Básico", 0, 15, 0));
         habilidades.add(new Habilidade("2", "Bola de Fogo", 10, 20, 0));
         inventario.add(new Item("1", "Poção de Vida", 0, 30, 0, "vida"));
     }
