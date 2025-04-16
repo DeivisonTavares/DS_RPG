@@ -13,7 +13,7 @@ class Jogo {
     public void iniciar() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("\n=== RPG de Batalha ===");
+            System.out.println("\n |=#=#=#= RPG de Batalha =#=#=#=|");
             System.out.println("1. Cadastrar Jogador");
             System.out.println("2. Login");
             System.out.println("3. Sair");
