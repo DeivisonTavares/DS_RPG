@@ -48,7 +48,7 @@ class Arena {
                 for (Entidade p : participantes) {
                     if (p != atual && p.estaVivo()) {
                         alvo = p;
-                        break; // Usa o primeiro alvo vivo encontrado
+                        break;
                     }
                 }
                 if (alvo != null) {
