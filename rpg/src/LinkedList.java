@@ -1,4 +1,4 @@
-// Lista encadeada simples para inventário e personagens
+// Lista para inventário e personagens
 class LinkedList {
     Node head;
     int size;
@@ -47,9 +47,12 @@ class LinkedList {
             } else if (type.equals("Itens")) {
                 Item i = (Item) current.data;
                 System.out.println(index + ". " + i.nome + " (ID: " + i.id + ", Efeito: " + i.efeito + " " + i.tipoEfeito + ", Preço: " + i.preco + " moedas)");
-            } else {
+            } else if (type.equals("Personagens")) {
                 Entidade p = (Entidade) current.data;
-                System.out.println("- " + p.nome + " (Nível " + p.nivel + ", Vida " + p.vidaAtual + "/" + p.vidaMaxima + ")");
+                System.out.println(index + ". " + p.nome + " (Nível " + p.nivel + ", Vida " + p.vidaAtual + "/" + p.vidaMaxima + ")");
+            } else {
+                Jogador j = (Jogador) current.data;
+                System.out.println(index + ". " + j.nome);
             }
             current = current.next;
             index++;

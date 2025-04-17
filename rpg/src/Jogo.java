@@ -1,5 +1,5 @@
 import java.util.Scanner;
-// Classe principal do jogo
+
 class Jogo {
     LinkedList jogadores;
     Arena arenaAtual;
@@ -13,7 +13,7 @@ class Jogo {
     public void iniciar() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("\n=== RPG de Batalha ===");
+            System.out.println("\n |=#=#=#= RPG de Batalha =#=#=#=|");
             System.out.println("1. Cadastrar Jogador");
             System.out.println("2. Login");
             System.out.println("3. Sair");
@@ -80,18 +80,27 @@ class Jogo {
                 String nome = scanner.nextLine();
                 Entidade p = jogador.selecionarPersonagem(nome);
                 if (p != null) {
-                    Entidade monstro = new Monstro("M1", "Monstro", 80, 20);
-                    Entidade[] participantes = {p, monstro};
+                    System.out.print("Quantos inimigos deseja enfrentar (1-5)? ");
+                    int numInimigos = scanner.nextInt();
+                    scanner.nextLine();
+                    if (numInimigos < 1 || numInimigos > 5) {
+                        System.out.println("Número inválido! Escolha entre 1 e 5.");
+                        continue;
+                    }
+                    Entidade[] participantes = new Entidade[numInimigos + 1];
+                    participantes[0] = p;
+                    for (int i = 0; i < numInimigos; i++) {
+                        participantes[i + 1] = new Monstro("M" + (i + 1), "Monstro " + (i + 1), 80, 20);
+                    }
                     arenaAtual = new Arena("Batalha" + System.currentTimeMillis(), participantes);
                     arenaAtual.iniciarBatalha();
                     while (arenaAtual.estadoBatalha.equals("EmAndamento")) {
-                        arenaAtual.executarTurno(scanner);
-                        arenaAtual.verificarVencedor();
+                        arenaAtual.executarTurno(scanner, jogador, null);
                     }
                     arenaAtual.exibirRankingFinal();
-                    if (arenaAtual.verificarVencedor() == p) {
-                        jogador.saldoMoedas += 50;
-                        System.out.println(jogador.nome + " ganhou 50 moedas!");
+                    if (arenaAtual.getVencedor() == p) {
+                        jogador.saldoMoedas += 50 * numInimigos;
+                        System.out.println(jogador.nome + " ganhou " + (50 * numInimigos) + " moedas!");
                     }
                     System.out.println("Deseja continuar? (1. Sim / 2. Não)");
                     int continuar = scanner.nextInt();
@@ -101,46 +110,81 @@ class Jogo {
                     System.out.println("Personagem não encontrado!");
                 }
             } else if (opcao == 4) {
+                System.out.println("=== Modo PvP ===");
+                System.out.println("Jogadores disponíveis (exceto você):");
+                boolean temOutrosJogadores = false;
+                for (int i = 0; i < jogadores.size; i++) {
+                    Jogador j = (Jogador) jogadores.get(i);
+                    if (!j.nome.equals(jogador.nome)) {
+                        System.out.println("- " + j.nome);
+                        temOutrosJogadores = true;
+                    }
+                }
+                if (!temOutrosJogadores) {
+                    System.out.println("Nenhum outro jogador cadastrado! Cadastre outro jogador para jogar PvP.");
+                    continue;
+                }
                 System.out.print("Nome do adversário: ");
                 String nomeAdv = scanner.nextLine();
                 Jogador adversario = null;
                 for (int i = 0; i < jogadores.size; i++) {
                     Jogador j = (Jogador) jogadores.get(i);
-                    if (j.nome.equals(nomeAdv)) {
+                    if (j.nome.equals(nomeAdv) && !j.nome.equals(jogador.nome)) {
                         adversario = j;
                         break;
                     }
                 }
-                if (adversario != null) {
-                    System.out.print("Seu personagem: ");
-                    String nomeP1 = scanner.nextLine();
-                    System.out.print("Personagem do adversário: ");
-                    String nomeP2 = scanner.nextLine();
-                    Entidade p1 = jogador.selecionarPersonagem(nomeP1);
-                    Entidade p2 = adversario.selecionarPersonagem(nomeP2);
-                    if (p1 != null && p2 != null) {
-                        Entidade[] participantes = {p1, p2};
-                        arenaAtual = new Arena("BatalhaPvP" + System.currentTimeMillis(), participantes);
-                        arenaAtual.iniciarBatalha();
-                        while (arenaAtual.estadoBatalha.equals("EmAndamento")) {
-                            arenaAtual.executarTurno(scanner);
-                            arenaAtual.verificarVencedor();
-                        }
-                        arenaAtual.exibirRankingFinal();
-                        if (arenaAtual.verificarVencedor() == p1) {
-                            jogador.saldoMoedas += 100;
-                            System.out.println(jogador.nome + " ganhou 100 moedas!");
-                        }
-                        System.out.println("Deseja continuar? (1. Sim / 2. Não)");
-                        int continuar = scanner.nextInt();
-                        scanner.nextLine();
-                        if (continuar == 2) break;
-                    } else {
-                        System.out.println("Personagem(s) não encontrado(s)!");
-                    }
-                } else {
-                    System.out.println("Adversário não encontrado!");
+                if (adversario == null) {
+                    System.out.println("Adversário não encontrado ou inválido!");
+                    continue;
                 }
+                System.out.println("\nSeus personagens:");
+                jogador.exibirPersonagens();
+                if (jogador.personagens.isEmpty()) {
+                    System.out.println("Você não tem personagens! Crie um antes de jogar PvP.");
+                    continue;
+                }
+                System.out.print("Seu personagem: ");
+                String nomeP1 = scanner.nextLine();
+                Entidade p1 = jogador.selecionarPersonagem(nomeP1);
+                if (p1 == null) {
+                    System.out.println("Personagem não encontrado!");
+                    continue;
+                }
+                System.out.println("\nPersonagens de " + adversario.nome + ":");
+                adversario.exibirPersonagens();
+                if (adversario.personagens.isEmpty()) {
+                    System.out.println(adversario.nome + " não tem personagens!");
+                    continue;
+                }
+                System.out.print("Personagem do adversário: ");
+                String nomeP2 = scanner.nextLine();
+                Entidade p2 = adversario.selecionarPersonagem(nomeP2);
+                if (p2 == null) {
+                    System.out.println("Personagem do adversário não encontrado!");
+                    continue;
+                }
+                Entidade[] participantes = {p1, p2};
+                arenaAtual = new Arena("BatalhaPvP" + System.currentTimeMillis(), participantes);
+                arenaAtual.iniciarBatalha();
+                while (arenaAtual.estadoBatalha.equals("EmAndamento")) {
+                    arenaAtual.executarTurno(scanner, jogador, adversario);
+                }
+                arenaAtual.exibirRankingFinal();
+                Entidade vencedor = arenaAtual.getVencedor();
+                if (vencedor == p1) {
+                    jogador.saldoMoedas += 100;
+                    System.out.println(jogador.nome + " venceu a batalha PvP e ganhou 100 moedas!");
+                } else if (vencedor == p2) {
+                    adversario.saldoMoedas += 100;
+                    System.out.println(adversario.nome + " venceu a batalha PvP e ganhou 100 moedas!");
+                } else {
+                    System.out.println("A batalha terminou sem vencedor claro!");
+                }
+                System.out.println("Deseja continuar? (1. Sim / 2. Não)");
+                int continuar = scanner.nextInt();
+                scanner.nextLine();
+                if (continuar == 2) break;
             } else if (opcao == 5) {
                 loja.exibirLoja();
                 System.out.println("1. Comprar Habilidade");

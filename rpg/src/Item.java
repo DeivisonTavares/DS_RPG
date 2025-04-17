@@ -1,4 +1,3 @@
-// Classe Item
 class Item {
     String id;
     String nome;

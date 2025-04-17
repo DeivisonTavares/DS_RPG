@@ -1,5 +1,5 @@
 import java.util.Random;
-// Classe abstrata Entidade
+
 abstract class Entidade {
     String id;
     String nome;

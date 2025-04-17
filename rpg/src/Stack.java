@@ -16,7 +16,8 @@ class Stack {
     }
 
     public Object pop() {
-        if (isEmpty()) return null;
+        if (isEmpty()) 
+        return null;
         Node temp = top;
         top = top.next;
         size--;
@@ -24,7 +25,8 @@ class Stack {
     }
 
     public Object peek() {
-        if (isEmpty()) return null;
+        if (isEmpty()) 
+        return null;
         return top.data;
     }
 

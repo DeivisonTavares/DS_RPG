@@ -1,4 +1,3 @@
-// Classe Jogador
 class Jogador {
     String idJogador;
     String nome;
